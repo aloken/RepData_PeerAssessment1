@@ -5,34 +5,48 @@
 
 Load the data
 
-```{r}
+
+```r
 data <- read.csv("activity.csv")
 ```
 
 Process/transform the data into a format suitable for analysis
 
-```{r, echo=TRUE}
+
+```r
 library(ggplot2)
 total.steps <- tapply(data$steps, data$date, FUN = sum, na.rm = TRUE)
-
 ```
 
 ## What is mean total number of steps taken per day?
 
 Make a histogram of the total number of steps taken each day
 
-```{r, echo=TRUE}
+
+```r
 qplot(total.steps, binwidth = 1000, xlab = "total number of steps taken each day")
 ```
 
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3-1.png) 
+
 Calculate and report the mean and median total number of steps taken per day
 
-```{r, echo=TRUE}
+
+```r
 mean(total.steps)
 ```
 
-```{r, echo=TRUE}
+```
+## [1] 9354.23
+```
+
+
+```r
 median(total.steps)
+```
+
+```
+## [1] 10395
 ```
 
 
@@ -41,16 +55,25 @@ median(total.steps)
 
 Make a time series plot (i.e. type = “l”) of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 
-```{r, echo=TRUE}
+
+```r
 library(ggplot2)
 averages <- aggregate(x = list(steps = data$steps), by = list(interval = data$interval), FUN = mean, na.rm = TRUE)
 ggplot(data = averages, aes(x = interval, y = steps)) + geom_line() + xlab("5-minute interval") + ylab("average number of steps taken")
 ```
 
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6-1.png) 
+
 Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps
 
-```{r, echo=TRUE}
+
+```r
 averages[which.max(averages$steps), ]
+```
+
+```
+##     interval    steps
+## 104      835 206.1698
 ```
 
 
@@ -59,10 +82,17 @@ averages[which.max(averages$steps), ]
 
 Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
 
-```{r, echo=TRUE}
+
+```r
 missing <- is.na(data$steps)
 # How many missing
 table(missing)
+```
+
+```
+## missing
+## FALSE  TRUE 
+## 15264  2304
 ```
 
 
@@ -72,7 +102,8 @@ Devise a strategy for filling in all of the missing values in the dataset. The s
 All of the missing values are filled in with mean value for that 5-minute interval.
 
 
-```{r, echo=TRUE}
+
+```r
 # Replace each missing value with the mean value of its 5-minute interval
 fill.value <- function(steps, interval) {
     filled <- NA
@@ -88,17 +119,30 @@ filled.data$steps <- mapply(fill.value, filled.data$steps, filled.data$interval)
 
 Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day.
 
-```{r, echo=TRUE}
+
+```r
 total.steps <- tapply(filled.data$steps, filled.data$date, FUN = sum)
 qplot(total.steps, binwidth = 1000, xlab = "total number of steps taken each day")
 ```
 
-```{r, echo=TRUE}
+![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10-1.png) 
+
+
+```r
 mean(total.steps)
 ```
 
-```{r, echo=TRUE}
+```
+## [1] 10766.19
+```
+
+
+```r
 median(total.steps)
+```
+
+```
+## [1] 10766.19
 ```
 
 
@@ -111,7 +155,8 @@ Do these values differ from the estimates from the first part of the assignment?
 
 Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.
 
-```{r, echo=TRUE}
+
+```r
 weekday.or.weekend <- function(date) {
     day <- weekdays(date)
     if (day %in% c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")) 
@@ -124,9 +169,12 @@ filled.data$day <- sapply(filled.data$date, FUN = weekday.or.weekend)
 
 Make a panel plot containing a time series plot (i.e. type = “l”) of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). The plot should look something like the following, which was creating using simulated data:
 
-```{r, echo=TRUE}
+
+```r
 averages <- aggregate(steps ~ interval + day, data = filled.data, mean)
 ggplot(averages, aes(interval, steps)) + geom_line() + facet_grid(day ~ .) + 
     xlab("5-minute interval") + ylab("Number of steps")
 ```
+
+![plot of chunk unnamed-chunk-14](figure/unnamed-chunk-14-1.png) 
 
